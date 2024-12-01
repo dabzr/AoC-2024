@@ -6,7 +6,11 @@ import gleam/string.{split, split_once}
 import simplifile.{read}
 
 pub fn main() {
-  let #(a, b) = unwrap(read("input.txt"), "") |> parse_input()
+  let #(a, b) = 
+    "input.txt"
+    |> read()
+    |> unwrap("")
+    |> parse_input()
   io.debug(part1(a, b))
   io.debug(part2(a, b))
 }
