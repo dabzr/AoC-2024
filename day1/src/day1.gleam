@@ -1,7 +1,7 @@
 import gleam/int
 import gleam/io
-import gleam/list.{count, map, map2, sort, unique, unzip}
-import gleam/result.{unwrap}
+import gleam/list.{filter_map, count, map, map2, sort, unique, unzip}
+import gleam/result.{try, unwrap}
 import gleam/string.{split, split_once}
 import simplifile.{read}
 
@@ -14,9 +14,11 @@ pub fn main() {
 fn parse_input(s: String) {
   s
   |> split(on: "\n")
-  |> map(fn(i) {
-    let #(a, b) = split_once(i, on: "   ") |> unwrap(#("0", "0"))
-    #(a |> int.parse() |> unwrap(0), b |> int.parse() |> unwrap(0))
+  |> filter_map(fn(i) {
+    use #(a, b) <- try(split_once(i, on: "   "))
+    use a <- try(int.parse(a))
+    use b <- try(int.parse(b))
+    Ok(#(a, b))
   })
   |> unzip()
 }
