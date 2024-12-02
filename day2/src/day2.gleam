@@ -1,7 +1,10 @@
+import gleam/bool.{negate, or}
 import gleam/int
 import gleam/io
-import gleam/bool.{or, negate}
-import gleam/list.{is_empty, combinations, filter, all, count, filter_map, map, window_by_2, any, length}
+import gleam/list.{
+  all, any, combinations, count, filter, filter_map, is_empty, length, map,
+  window_by_2,
+}
 import gleam/result.{unwrap}
 import gleam/string.{split}
 import simplifile.{read}
@@ -12,10 +15,9 @@ pub fn main() {
     |> read()
     |> unwrap("")
     |> parse_input()
-  
+
   lst |> part2() |> io.debug()
   lst |> part1() |> io.debug()
-
 }
 
 fn parse_input(input: String) {
@@ -26,25 +28,27 @@ fn parse_input(input: String) {
     |> split(on: " ")
     |> filter_map(int.parse)
   })
-  |> filter(fn(x){negate(is_empty(x))})
+  |> filter(fn(x) { negate(is_empty(x)) })
 }
-fn aux(a: List(Int)) {
-  a
-  |> window_by_2()
-  |> map(fn(b) {b.0 - b.1})
-  |> fn(w) {
-    all(w, fn(i){i <= 3 && i >= 1})
-    |> or(all(w, fn(i) {i >= -3 && i <= -1}))
-  }
-}
+
 fn part1(lst: List(List(Int))) {
   lst |> count(aux)
 }
 
 fn part2(lst: List(List(Int))) {
   lst
-  |> filter(fn(line) {
-    any(combinations(line, length(line) - 1), aux)
-  })
+  |> filter(fn(line) { any(combinations(line, length(line) - 1), aux) })
   |> list.length
 }
+
+fn aux(a: List(Int)) {
+  a
+  |> window_by_2()
+  |> map(fn(b) { b.0 - b.1 })
+  |> fn(w) {
+    all(w, fn(i) { i <= 3 && i >= 1 })
+    |> or(all(w, fn(i) { i >= -3 && i <= -1 }))
+  }
+}
+
+
