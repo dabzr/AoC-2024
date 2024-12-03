@@ -4,11 +4,13 @@ import gleam/result.{unwrap}
 import gleam/list
 import simplifile.{read}
 import gleam/int
+import gleam/string
 pub fn main() {
   "input.txt"
   |> read()
   |> unwrap("")
-  |> part1()
+  |> string.replace("\n", "")
+  |> part2()
   |> io.debug()
 }
 
@@ -26,3 +28,10 @@ fn part1(s: String) {
   |> int.sum()
 
 }
+
+fn part2(s: String) {
+  let assert Ok(re) = regexp.from_string("don't\\(\\).*?(do\\(\\)|$)")
+  regexp.replace(re, s, "")
+  |> part1()
+}
+
