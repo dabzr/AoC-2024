@@ -13,6 +13,6 @@ pub fn main() {
 }
 
 fn parse_input(s: String) {
-  let assert Ok(re) = regexp.from_string("mul\\(\\d+,\\d+\\)")
+  let assert Ok(re) = regexp.from_string("((mul\\(\\d+,\\d+\\))).+")
   split(with: re, content: s)
 }
