@@ -17,6 +17,7 @@ pub fn main() {
 fn part1(s: String) {
   let assert Ok(re) = regexp.from_string("mul\\(\\d{1,3},\\d{1,3}\\)")
   scan(with: re, content: s)
+  |> io.debug()
   |> map(fn(a){
     let assert Ok(r) = regexp.from_string("\\d{1,3}")
     scan(with: r, content: a.content)
@@ -35,17 +36,15 @@ fn part2(s: String) {
   |> part1()
 }
 
-// WORK IN PROGRESS
 fn part1_no_regex(s: String) {
   s
   |> split("mul(")
   |> filter_map(fn(a) { a |> split(")") |> first()})
   |> filter_map(fn(a) { 
-    let b = a |> split(",") |> filter_map(int.parse)
-    case b {
-      [first, second] -> Ok(first * second)
-      _               -> Error(Nil)
-    }
+      case split(a, ",") {
+        [fir, sec] -> Ok(unwrap(int.parse(fir), 0) * unwrap(int.parse(sec), 0))
+        _          -> Error(Nil)
+      }
   })
   |> int.sum()
 }
