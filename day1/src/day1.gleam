@@ -1,12 +1,12 @@
 import gleam/int
 import gleam/io
-import gleam/list.{filter_map, count, map, map2, sort, unique, unzip}
+import gleam/list.{count, filter_map, map, map2, sort, unique, unzip}
 import gleam/result.{try, unwrap}
 import gleam/string.{split, split_once}
 import simplifile.{read}
 
 pub fn main() {
-  let #(a, b) = 
+  let #(a, b) =
     "input.txt"
     |> read()
     |> unwrap("")
