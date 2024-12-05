@@ -7,11 +7,12 @@ import gleam/int
 import gleam/bool
 import gleam/set.{type Set}
 import gleam/dict.{type Dict}
+
 pub fn main() {
   let #(t0, t1) = "input.txt" |> parse()
   t0 
   |> parse_pair()
-  |> fn(a) {part1(a, t1)}
+  |> fn(a) {#(part1(a, t1), part2(a, t1))}
   |> io.debug() 
 }
 
@@ -51,21 +52,60 @@ fn parse_pair(lista: List(#(String, String))) {
 
 fn part1(dic: Dict(String, Set(String)), lst: List(List(String))) {
   lst 
-  |> list.filter(fn(a) {aux(dic, a)})
+  |> list.filter(fn(a) {aux1(dic, a)})
+  |> list.filter_map(fn(a) {
+    a |> list.filter_map(int.parse) |> at(list.length(a)/2)
+  })
+  |> int.sum()
+}
+fn part2(dic: Dict(String, Set(String)), lst: List(List(String))) {
+  lst 
+  |> list.filter(fn(a) {aux1(dic, a) |> bool.negate()})
+  |> list.map(fn(a) {a |> aux2(dic, 0)})
   |> list.filter_map(fn(a) {
     a |> list.filter_map(int.parse) |> at(list.length(a)/2)
   })
   |> int.sum()
 }
 
-fn aux(dic: Dict(String, Set(String)), lst: List(String)) {
+fn aux2(lst: List(String), dic: Dict(String, Set(String)),  idx: Int) {
+  case idx == list.length(lst) - 1 {
+    True -> lst
+    False ->  {
+      let invset = get_invalids_after_index(lst, dic, idx)
+      let corrected_list = 
+        [
+          list.take(lst, idx),
+          invset |> set.to_list(),
+          list.drop(lst, idx) |> list.filter(fn(a){set.contains(invset, a) |> bool.negate()})
+        ]
+      case set.is_empty(invset) {
+        True  -> lst |> aux2(dic, {idx+1})
+        False -> corrected_list |> list.flatten() |> aux2(dic, idx)
+      }
+    }
+  }
+}
+
+fn aux1(dic: Dict(String, Set(String)), lst: List(String)) {
   case lst {
     [] | [_] -> True
     [first, ..rest] -> {
       let rset = rest |> set.from_list()
       let dset = dic |> dict.get(first) |> result.unwrap(rset)
-      rset |> set.intersection(dset) |> set.is_empty() |> bool.and(aux(dic, rest))
+      rset |> set.intersection(dset) |> set.is_empty() |> bool.and(aux1(dic, rest))
     }
+  }
+}
+
+fn get_invalids_after_index(lst: List(String), dic: Dict(String, Set(String)), idx: Int) {
+  case lst |> list.drop(idx) {
+    [first, ..rest] -> {
+      let rset = rest |> set.from_list()
+      let dset = dic |> dict.get(first) |> result.unwrap(set.from_list(["OIIII"]))
+      rset |> set.intersection(dset)
+    }
+    _ -> set.new()
   }
 }
 
