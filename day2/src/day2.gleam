@@ -50,5 +50,3 @@ fn aux(a: List(Int)) {
     |> or(all(w, fn(i) { i >= -3 && i <= -1 }))
   }
 }
-
-
