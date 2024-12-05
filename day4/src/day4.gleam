@@ -7,10 +7,9 @@ import gleam/dict.{type Dict}
 import simplifile.{read}
 
 pub fn main() {
-  "input.txt"
-  |> parse()
-  |> part2(140)
-  |> io.debug()
+  let dic = "input.txt" |> parse()
+  dic |> part1(140) |> io.debug()
+  dic |> part2(140) |> io.debug()
 }
 
 type Grid(a) = Dict(#(Int, Int), a)
@@ -69,20 +68,16 @@ fn filter_middle(s: String) {
   }
 }
 fn line(i: Int, size: Int, slice: Int) {
-  list.range(from:0, to:{slice-1})
-  |> list.index_map(fn(a, _){#(i/size+a, i%size)})
+  list.range(from:0, to:{slice-1}) |> list.map(fn(a){#(i/size+a, i%size)})
 }
 fn column(i: Int, size: Int, slice: Int) {
-  list.range(from:0, to:{slice-1})
-  |> list.index_map(fn(a, _){#(i/size, i%size+a)})
+  list.range(from:0, to:{slice-1}) |> list.map(fn(a){#(i/size, i%size+a)})
 }
 fn main_diagonal(i: Int, size: Int, slice: Int) {
-  list.range(from:0, to:{slice-1})
-  |> list.index_map(fn(a, _){#(i/size+a, i%size+a)})
+  list.range(from:0, to:{slice-1}) |> list.map(fn(a){#(i/size+a, i%size+a)})
 }
 fn reverse_diagonal(i: Int, size: Int, slice: Int) {
-  list.range(from:0, to:{slice-1})
-  |> list.index_map(fn(a, _){#(i/size-a, i%size+a)})
+  list.range(from:0, to:{slice-1}) |> list.map(fn(a){#(i/size-a, i%size+a)})
 }
 
 

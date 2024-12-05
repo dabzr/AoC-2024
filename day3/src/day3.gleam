@@ -6,18 +6,18 @@ import simplifile.{read}
 import gleam/int
 import gleam/string.{split}
 pub fn main() {
-  "input.txt"
+  let str = "input.txt"
   |> read()
   |> unwrap("")
   |> string.replace("\n", "")
-  |> part1_no_regex()
-  |> io.debug()
+  str |> part1_no_regex() |> io.debug()
+  str |> part1() |> io.debug()
+  str |> part2() |> io.debug()
 }
 
 fn part1(s: String) {
   let assert Ok(re) = regexp.from_string("mul\\(\\d{1,3},\\d{1,3}\\)")
   scan(with: re, content: s)
-  |> io.debug()
   |> map(fn(a){
     let assert Ok(r) = regexp.from_string("\\d{1,3}")
     scan(with: r, content: a.content)

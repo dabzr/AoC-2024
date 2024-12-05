@@ -16,8 +16,8 @@ pub fn main() {
     |> unwrap("")
     |> parse_input()
 
-  lst |> part2() |> io.debug()
   lst |> part1() |> io.debug()
+  lst |> part2() |> io.debug()
 }
 
 fn parse_input(input: String) {
