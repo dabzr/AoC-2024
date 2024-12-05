@@ -25,7 +25,6 @@ pub fn parse(path: String){
 }
 
 pub fn parse_pair(p: List(#(String, String))) {
-  todo
-}
 
+}
 
