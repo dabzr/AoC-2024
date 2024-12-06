@@ -9,8 +9,10 @@ import gleam/erlang/process
 
 pub fn main() {
   parse(file: "input.txt")
-  |> part1()
-  |> io.debug()
+  |> fn(a) {
+    part1(a) |> io.debug()
+    part2(a) |> io.debug()
+  }
 }
 
 type Point =
@@ -33,6 +35,47 @@ fn parse(file path: String) {
   |> dict.from_list()
 }
 
+fn part1(map: Grid(String)) {
+  let pos = get_initial_position(map)
+  walk(map, at: pos, looking_for: #(0,-1), and: set.new())
+  |> set.size()
+}
+
+fn part2(map: Grid(String)){
+  let pos = get_initial_position(map)
+  walk(map, at: pos, looking_for: #(0,-1), and: set.new()) |> set.filter(fn(a){a != pos})
+  |> set.filter(fn(a) {
+    let new_map = dict.insert(map, a, "#")
+    is_in_loop(new_map, pos, #(0, -1), set.new())
+  })
+  |> set.size()
+}
+
+fn is_in_loop(map: Grid(String), position: Point, direction: Point, past: Set(#(Point, Point))){
+  case set.contains(past, #(position, direction)) {
+    True -> True
+    False -> {
+      case map |> dict.get(position) {
+        Ok(v) -> {
+          let #(new_pos, new_direction, pset) = walk_teste(v, position, direction, past)
+          is_in_loop(map, new_pos, new_direction, pset)
+        }
+        Error(_) -> False
+      }
+    }
+  }
+}
+
+fn walk_teste(char: String, position: Point, direction: Point, past: Set(#(Point, Point))){
+  let new_direction = get_direction(char, direction)
+  let #(new_position, pset) = 
+    case new_direction != direction {
+      True -> #(sub(position, direction), past) 
+      False -> #(add(position, direction), set.insert(past, #(position, direction))) 
+    }
+  #(new_position, new_direction, pset)
+} 
+
 fn get_initial_position(map: Grid(String)) {
     list.range(0, 129)
     |> list.map(fn(i) {
@@ -47,12 +90,6 @@ fn get_initial_position(map: Grid(String)) {
     |> list.flatten()
     |> list.first()
     |> result.unwrap(#(0, 0))
-}
-
-fn part1(map: Grid(String)) {
-  let pos = get_initial_position(map)
-  walk(map, at: pos, looking_for: #(0,-1), and: set.new())
-  |> set.size()
 }
 
 fn walk(
