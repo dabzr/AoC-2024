@@ -4,6 +4,7 @@ import gleam/string
 import simplifile.{read}
 import gleam/dict.{type Dict}
 import gleam/list
+import gleam/set.{type Set}
 import gleam/erlang/process
 
 pub fn main() {
@@ -50,32 +51,28 @@ fn get_initial_position(map: Grid(String)) {
 
 fn part1(map: Grid(String)) {
   let pos = get_initial_position(map)
-  walk(map, at: pos, looking_for: #(0,-1), starting_with: 0)
+  walk(map, at: pos, looking_for: #(0,-1), and: set.new())
+  |> set.size()
 }
 
 fn walk(
   map: Grid(String),
   at position: Point,
   looking_for direction: Point,
-  starting_with count: Int,
+  and past: Set(Point)
 ) {
   case map |> dict.get(position) {
       Ok(v) -> {
         let new_direction = get_direction(v, direction)
+        let new_position = 
         case new_direction != direction {
-          True -> {
-          let new_position = sub(position, direction)
-          walk(map, at: new_position, looking_for: new_direction, starting_with: count)
-
-          }
-          False -> {
-            let new_position = add(position, direction)
-            walk(map, at: new_position, looking_for: new_direction, starting_with: count+1)
-          }
+          True -> sub(position, direction) 
+          False -> add(position, direction) 
         }
+        walk(map, at: new_position, looking_for: new_direction, and: set.insert(past, new_position)) 
 
       } 
-      Error(_) -> count
+      Error(_) -> past
   }
 }
 
