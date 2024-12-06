@@ -64,13 +64,12 @@ fn walk(
   case map |> dict.get(position) {
       Ok(v) -> {
         let new_direction = get_direction(v, direction)
-        let new_position = 
-        case new_direction != direction {
-          True -> sub(position, direction) 
-          False -> add(position, direction) 
-        }
-        walk(map, at: new_position, looking_for: new_direction, and: set.insert(past, new_position)) 
-
+        let #(new_position, pset) = 
+          case new_direction != direction {
+            True -> #(sub(position, direction), past) 
+            False -> #(add(position, direction), set.insert(past, position)) 
+          }
+        walk(map, at: new_position, looking_for: new_direction, and: pset) 
       } 
       Error(_) -> past
   }
