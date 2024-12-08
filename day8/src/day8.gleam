@@ -10,7 +10,7 @@ import simplifile.{read}
 pub fn main() {
   "input.txt"
   |> parse()
-  |> part1(50)
+  |> part2(50)
   |> io.debug()
 }
 
@@ -50,6 +50,29 @@ fn part1(grid: Grid(String), map_bound: Int) {
        add(sub(pair.1, pair.0), pair.1)]
     })
   })
+  |> aux(map_bound)
+}
+
+fn part2(grid: Grid(String), map_bound) {
+  grid
+  |> dict.map_values(fn(_key, lst){
+    lst 
+    |> list.combination_pairs()
+    |> list.flat_map(fn(pair) {
+      list.range(0, {map_bound-1})
+      |> list.flat_map(fn(i) {
+        [add(sub(pair.0, pair.1)|>times(i), pair.0),
+         add(sub(pair.1, pair.0)|>times(i), pair.1)]
+      })
+    })
+  })
+  |> aux(map_bound)
+}
+
+
+
+fn aux(grid: Grid(String), map_bound: Int) {
+  grid
   |> dict.values()
   |> list.flatten()
   |> list.filter(fn(a){
@@ -61,6 +84,10 @@ fn part1(grid: Grid(String), map_bound: Int) {
 
 fn sub(f: Point, g: Point) {
   #(f.0 - g.0, f.1 - g.1)
+}
+
+fn times(f: Point, num: Int) {
+  #(f.0*num, f.1*num)
 }
 
 fn add(f: Point, g: Point) {
