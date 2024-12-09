@@ -5,7 +5,9 @@ import gleam/list
 import gleam/int
 import gleam/option
 import gleam/pair
-import gleam/deque
+import gleam/bool
+import gleam/set
+import gleam/deque.{type Deque}
 import gleam/dict.{type Dict}
 import simplifile.{read}
 
@@ -15,7 +17,7 @@ type MemMap = Dict(Int, List(Int))
 pub fn main() {
   "input.txt"
   |> parse()
-  |> part1()
+  |> part2()
   |> io.debug()
 }
 
@@ -74,24 +76,70 @@ fn part1(dic: MemMap){
         False -> list.Stop(acc)
       }
     })
-    dict.upsert(acc, -1, fn(x) {
-      case x {
-        option.Some(i) -> new_edq
-        option.None -> new_edq
-      }
-    })
-    |>
-    dict.upsert(key, fn(y) {
-      case y {
-        option.Some(i) -> new_ndq
-        option.None -> new_ndq
-      }
-    })
+    dict.upsert(acc, -1, fn(_) { new_edq })
+    |> dict.upsert(key, fn(_) { new_ndq })
   })
   list.range(0, num)
   |> list.flat_map(fn(i){
     let assert Ok(lst) = dict.get(memmap, i)
     list.map(deque.to_list(lst), fn(j){i*j})
+  })
+  |> int.sum()
+}
+
+fn have_sequential_space(lst: List(Int), space: Int){
+  lst 
+  |> list.window(space)
+  |> list.filter(is_sequential)
+  |> list.is_empty()
+  |> bool.negate()
+}
+
+fn sequential_space(lst: List(Int), space: Int) {
+  lst 
+  |> list.window(space)
+  |> list.filter(is_sequential)
+  |> list.first()
+}
+
+fn is_sequential(lst: List(Int)) {
+  case list.first(lst), list.last(lst) {
+    Ok(first), Ok(last) -> lst == list.range(first, last)
+    _, _ -> False
+  }
+}
+
+fn part2(dic: MemMap){
+  let num = dict.keys(dic) |> max_list() 
+  let memmap =
+  list.range(num, 0)
+  |> list.fold(dic, fn(acc, key) {
+    let assert Ok(empty_space_deque) = dict.get(acc, -1)
+    let assert Ok(num_deque) = dict.get(acc, key)
+    let lenlst = list.length(num_deque)
+    let #(new_edq, new_ndq) = 
+      case have_sequential_space(empty_space_deque, lenlst) {
+          True -> {
+            let assert Ok(pos) = sequential_space(empty_space_deque, lenlst)
+            let assert Ok(first) = list.first(pos)
+            let assert Ok(f) = list.first(num_deque)
+            case first < f {
+              True -> {
+                let new_empty_space = empty_space_deque |> list.filter(fn(a){ list.contains(pos, a) |> bool.negate() }) |> list.append(num_deque) |> list.sort(int.compare)
+                #(new_empty_space, pos)
+              }
+              False -> #(empty_space_deque, num_deque)
+            }
+          }
+          False -> #(empty_space_deque, num_deque)
+      }
+    dict.upsert(acc, -1, fn(_) { new_edq })
+    |> dict.upsert(key, fn(_) { new_ndq })
+  })
+  list.range(0, num)
+  |> list.flat_map(fn(i){
+    let assert Ok(lst) = dict.get(memmap, i)
+    list.map(lst, fn(j){i*j})
   })
   |> int.sum()
 }
