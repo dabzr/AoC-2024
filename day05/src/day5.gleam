@@ -122,14 +122,10 @@ fn get_invalids_after_index(lst: List(String), dic: PageRules(String), idx: Int)
   }
 }
 
-fn at(lst: List(Int), idx: Int) -> Result(Int, Nil) {
-  case lst {
-    [] -> Error(Nil)
-    [v, ..rest] ->
-      case idx {
-        0 -> Ok(v)
-        _ if idx > 0 -> at(rest, idx - 1)
-        _ -> Error(Nil)
-      }
+fn at(xs: List(a), k: Int) -> Result(a, Nil) {
+  case xs, k {
+    [x, ..], 0 -> Ok(x)
+    [_, ..xs], k -> at(xs, k - 1)
+    [], _ -> Error(Nil)
   }
 }
