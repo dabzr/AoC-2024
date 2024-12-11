@@ -3,7 +3,10 @@ import gleam/io
 import gleam/list
 import gleam/result
 import gleam/string
+import gleam/pair
 import simplifile.{read}
+import gleam/dict.{type Dict}
+import gleam/option
 
 pub fn main() {
   "input.txt"
@@ -22,17 +25,45 @@ fn parse(file path: String) {
 }
 
 fn part1(lst: List(Int)) {
-  stones(lst, 25)
+  cache_stones(dict.new(), lst, 25)
 }
 
 fn part2(lst: List(Int)) {
-  stones(lst, 75)
+  cache_stones(dict.new(), lst, 75)
 }
 
 fn stones(lst: List(Int), count: Int) {
   case count {
     0 -> list.length(lst)
     _ -> list.flat_map(lst, num_analyze) |> stones(count-1)
+  }
+}
+
+fn cache_stones(cache: Dict(#(Int, Int), Int), lst: List(Int), blink: Int) {
+  let #(ncache, nlist) = 
+    list.index_fold(lst, #(cache, []), fn(acc, i, idx) {
+      let #(new_dict, n) = stones_cached(acc.0, [i], blink)
+      #(new_dict, list.append(acc.1, [n]))
+    })
+  int.sum(nlist)
+}
+
+fn stones_cached(cache: Dict(#(Int, Int), Int), lst: List(Int), count: Int){
+  case count {
+    0 -> #(cache, list.length(lst))
+    _ -> {
+      list.fold(lst, #(cache, []), fn(acc, item){
+        case dict.get(acc.0, #(item, count)) {
+          Ok(result) -> #(acc.0, list.append(acc.1, [result]))
+          Error(Nil) -> {
+              let result = num_analyze(item)
+              let #(ncache, nlist) = stones_cached(acc.0, result, count-1)
+              #(dict.insert(ncache, #(item, count), nlist), list.append(acc.1, [nlist]))
+          }
+        }
+      })
+      |> pair.map_second(fn(a){int.sum(a)})
+    }
   }
 }
 
