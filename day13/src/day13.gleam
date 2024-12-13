@@ -10,7 +10,7 @@ import gleam/pair
 import gleam/option
 
 pub fn main() {
-  "example.txt"
+  "input.txt"
   |> parse()
   |> part1()
   |> io.debug()
@@ -29,15 +29,24 @@ fn parse(file path: String) {
 }
 
 fn part1(lst: List(List(Int))) {
-  let #(a, b) = list.map(lst, solve) |> io.debug() |> most_repeated_item() |> io.debug()
-  {a*3}+b
+  list.map(lst, solve)
+  |> int.sum()
 }
+
+// 94 22 8400
+// 34 67 5400
+// 94 34 22 67 8400 5400
 
 fn solve(l: List(Int)) {
   let det = {at(l,0) * at(l,3)} - {at(l,1) * at(l,2)} 
-  let a = {{at(l,4) * at(l,3)} - {at(l,5) * at(l,2)}} / det
-  let b = {{at(l,4) * at(l,1)} - {at(l,5) * at(l,0)}} / det
-  #(a, b)
+  let a = {{{{at(l,4) * at(l,3)} - {at(l,5) * at(l,2)}}} / det} |> int.absolute_value()
+  let b = {{{at(l,4) * at(l,1)} - {at(l,5) * at(l,0)}} / det} |> int.absolute_value()
+  let conda = {a*at(l,0) + b*at(l,2)} == at(l, 4)
+  let condb = {a*at(l,1) + b*at(l,3)} == at(l, 5)
+  case conda && condb {
+    True -> {a*3}+b
+    False -> 0
+  }
 }
 
 fn gen_count(lst: List(#(Int, Int))) {
