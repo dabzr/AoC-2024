@@ -64,7 +64,7 @@ fn draw_grid(positions: List(Point), grid_width: Int, grid_height: Int) {
   |> list.flat_map(fn(i) {
     list.range(0, {grid_height-1})
     |> list.map(fn(j) {
-      case set.contains(s, #(i, j)) {
+      case set.contains(s, #(j, i)) {
         True -> "#"
         False -> "."
       }
