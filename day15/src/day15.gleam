@@ -39,25 +39,11 @@ fn parse_grid_p1(s: String) {
 
 fn parse_grid_p2(s: String) {
   s
-  |> string.split("\n")
-  |> list.map(string.to_graphemes)
-  |> list.map(fn(lst) {
-    lst
-    |> list.flat_map(fn(char) {
-        case char {
-          "#" -> ["#", "#"]
-          "O" -> ["[", "]"]
-          "." -> [".", "."]
-          "@" -> ["@", "."]
-          _ -> [char] 
-        }
-      })
-  })
-  |> list.index_map(fn(lst, i) {
-    lst |> list.index_map(fn(char, j) { #(#(j, i), char) })
-  })
-  |> list.flatten()
-  |> dict.from_list()
+  |> string.replace("@", "@.")
+  |> string.replace("O", "[]")
+  |> string.replace("#", "##")
+  |> string.replace(".", "..")
+  |> parse_grid_p1()
 }
 
 fn parse_direction(s: String) {
